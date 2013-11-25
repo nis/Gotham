@@ -20,7 +20,7 @@ class Place(MySQLModel):
 
 class Recording(MySQLModel):
 	place = ForeignKeyField(Place)
-	recorded_at = DateTimeField()
+	epoch = IntegerField()
 	filename = CharField()
 	filesize = IntegerField()
 	length = FloatField()
