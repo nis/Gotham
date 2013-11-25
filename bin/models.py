@@ -9,14 +9,14 @@ class MySQLModel(Model):
 
 class Site(MySQLModel):
 	name = CharField()
-	latitude  = CharField()
-	longitude  = CharField()
+	latitude  = CharField(default = None, null=True)
+	longitude  = CharField(default = None, null=True)
 
 class Place(MySQLModel):
 	site = ForeignKeyField(Site)
 	name = CharField()
-	latitude  = CharField()
-	longitude  = CharField()
+	latitude  = CharField(default = None, null=True)
+	longitude  = CharField(default = None, null=True)
 
 class Recording(MySQLModel):
 	place = ForeignKeyField(Place)
@@ -28,8 +28,8 @@ class Recording(MySQLModel):
 	power_rate = FloatField()
 	event_power_rate = FloatField()
 	background_power_rate = FloatField()
-	sample_rate = IntegerField()
-	bit_depth = IntegerField()
+	sample_rate = IntegerField(default = None, null=True)
+	bit_depth = IntegerField(default = None, null=True)
 
 class Event(MySQLModel):
 	recording = ForeignKeyField(Recording)
