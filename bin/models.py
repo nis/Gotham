@@ -34,7 +34,7 @@ class Recording(MySQLModel):
 class Event(MySQLModel):
 	recording = ForeignKeyField(Recording)
 	offset = FloatField()
-	duration_ms = IntegerField()
+	duration_ms = FloatField()
 	duration_sample = IntegerField()
 	energy_ms = FloatField()
 	f_min = FloatField()
