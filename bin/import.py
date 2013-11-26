@@ -7,6 +7,8 @@ import datetime
 
 from models import *
 
+startTime = datetime.datetime.now()
+
 conf = {'test': False}
 
 def import_folder():
@@ -58,9 +60,7 @@ def import_folder():
 		place = Place.create(name = conf['place'], site = site)
 		print 'Created place'
 	
-	# Start recording loop
-	# print 'Doing recording:', identifiers[0]
-
+	# Start looping over recordings
 	for recording_id in identifiers:
 
 		recording_data = {'id': recording_id}
@@ -107,7 +107,64 @@ def import_folder():
 											background_power_rate = recording_data['background_power_rate'])
 			print 'Created recording:', recording_data['id']
 
+		# Import events for this recording
+		event_count = 0
+		with open(conf['datadir'] + ddir['name'] + '/' + recording_data['id'] + '.events2', 'r') as f:
+			events = f.read()
 
+			#Split into events
+			events = events.strip()[0:-1].split('}')
+
+			for e in events:
+				event_data = {'recording': recording}
+				# Split into lines
+				e = e.strip()[2:].split('\n')
+				for line in e:
+					# Split into tokens
+					line = line.split('=')
+					if len(line) == 2:
+						line[0] = line[0].strip()
+						line[1] = line[1].strip()
+						if line[0] == 'offset_samp':
+							event_data['offset'] = float(line[1])
+						elif line[0] == 'dur_ms':
+							event_data['duration_ms'] = float(line[1])
+						elif line[0] == 'dur_samp':
+							event_data['duration_sample'] = int(float(line[1]))
+						elif line[0] == 'energy_ms':
+							event_data['energy_ms'] = float(line[1])
+						elif line[0] == 'f_min':
+							event_data['f_min'] = float(line[1])
+						elif line[0] == 'f_max':
+							event_data['f_max'] = float(line[1])
+						elif line[0] == 'bw':
+							event_data['bw'] = float(line[1])
+						elif line[0] == 'E_f':
+							event_data['E_f'] = float(line[1])
+						elif line[0] == 'std_f':
+							event_data['std_f'] = float(line[1])
+				
+				try:
+					event = Event.select().where(	Event.recording == event_data['recording'], 
+													Event.offset == event_data['offset'], 
+													Event.duration_ms == event_data['duration_ms'],
+													Event.duration_sample == event_data['duration_sample']).get()
+					print 'Existing event found.'
+				except DoesNotExist:
+					event = Event.create(	recording = event_data['recording'],
+											offset = event_data['offset'],
+											duration_ms = event_data['duration_ms'],
+											duration_sample = event_data['duration_sample'],
+											energy_ms = event_data['energy_ms'],
+											f_min = event_data['f_min'],
+											f_max = event_data['f_max'],
+											bw = event_data['bw'],
+											E_f = event_data['E_f'],
+											std_f = event_data['std_f'])
+					# print 'Created event.'
+					event_count = event_count + 1
+
+		print 'Created', event_count, 'events for this recording.'
 
 
 	
@@ -120,12 +177,12 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv,"htd:s:p:",['test', 'datadir=', 'site=', 'place='])
 	except getopt.GetoptError:
-		print 'import.py -i <inputfile> -o <outputfile>'
+		print "import.py -d '/PATH/TO/DATA' -s 'SITE NAME' -p 'PLACE NAME'"
 		sys.exit(2)
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'test.py -i <inputfile> -o <outputfile>'
+			print "import.py -d '/PATH/TO/DATA' -s 'SITE NAME' -p 'PLACE NAME'"
 			sys.exit()
 		elif opt in ('-d', '--datadir'):
 			conf['datadir'] = arg.replace('\\', '')
@@ -170,4 +227,5 @@ def main(argv):
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
+print(datetime.datetime.now()-startTime)
 print 'Jobs done!'
