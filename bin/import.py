@@ -12,6 +12,7 @@ startTime = datetime.datetime.now()
 conf = {'test': False}
 
 def import_folder():
+	os.system('clear')
 	folders = os.listdir(conf['datadir'])
 	datedirs = []
 
@@ -173,7 +174,6 @@ def import_folder():
 
 
 def main(argv):
-	os.system('clear')
 	try:
 		opts, args = getopt.getopt(argv,"htd:s:p:",['test', 'datadir=', 'site=', 'place='])
 	except getopt.GetoptError:
