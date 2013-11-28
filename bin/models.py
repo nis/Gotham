@@ -45,12 +45,12 @@ class Event(MySQLModel):
 
 class Detection_method(MySQLModel):
 	name = CharField()
-	notes = TextField()
+	notes = TextField(default = None, null=True)
 
 class Event_type(MySQLModel):
 	name = CharField()
-	latin = CharField()
-	notes = TextField()
+	latin = CharField(default = None, null=True)
+	notes = TextField(default = None, null=True)
 
 class Event_classification(MySQLModel):
 	event = ForeignKeyField(Event)
